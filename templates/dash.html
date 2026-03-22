@@ -1,0 +1,28 @@
+{% extends "base_dash.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+{% include "components/header.html" %}
+{% include "components/nav_tabs.html" %}
+{% include "components/flash_messages.html"%}
+
+<main class="content">
+<div class="container">
+
+{% include "sections/home_tab.html" %}
+{% include "sections/products_tab.html" %}
+{% include "sections/history_tab.html" %}
+{% include "sections/alerts_tab.html" %}
+{% include "sections/insights_tab.html" %}
+{% include "sections/settings_tab.html" %}
+
+</div>
+</main>
+
+{% include "components/footer.html" %}
+
+</div>
+{% endblock %}

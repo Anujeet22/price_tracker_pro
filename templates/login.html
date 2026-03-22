@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PriceTracker Pro - Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <!-- Include Flash Messages Component -->
+        {% include 'components/flash_messages.html' %}
+
+        {% if redirect_to_dashboard %}
+          <div class="flash-message flash-success">
+            Login successful! Redirecting...
+          </div>
+        {% endif%}
+        
+        <div class="logo">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-2 15l-5-5 1.4-1.4L10 14.2l7.6-7.6L19 8z"/>
+          </svg>
+        </div>
+        <h1 class="title">PriceTracker Pro</h1>
+        <p class="subtitle">Access Portal</p>
+      </div>
+      
+      <form class="form" method="POST" action="{{ url_for('login') }}">
+        <div class="field-wrapper">
+          <input class="field-input" type="text" name="username" placeholder=" " required>
+          <label class="field-label">Username</label>
+        </div>
+
+        <div class="field-wrapper">
+          <input class="field-input" type="password" name="password" placeholder=" " required>
+          <label class="field-label">Password</label>
+        </div>
+
+        <button class="btn" type="submit">Login</button>
+      </form>
+
+      <div class="footer">
+        <p>Don't have an account? 
+          <a href="{{ url_for('register') }}" class="guest-link">Register</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  {% if redirect_to_dashboard %}
+  <script>
+    setTimeout(function(){
+      window.location.href="{{url_for('dashboard') }}";
+      },1500);
+    </script>
+    {% endif %}
+</body>
+</html>

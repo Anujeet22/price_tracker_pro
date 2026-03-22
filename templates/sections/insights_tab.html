@@ -1,0 +1,178 @@
+<!-- INSIGHTS TAB -->
+<div id="section-insights" class="tab-section" style="display: none;">
+
+  <section class="section reveal">
+
+    <div class="section-header">
+      <h2 class="section-header__title">Shopping Insights</h2>
+      <span class="badge badge--success">
+        <span class="badge__dot"></span>Live Data
+      </span>
+    </div>
+
+    {% if products %}
+
+      <!-- ── Your Savings ───────────────────────────────────────────────── -->
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card__header">
+          <h3 class="card__title">Your Savings</h3>
+        </div>
+        <div class="card__content">
+          <div class="grid-4">
+
+            <div class="stagger-child text-center">
+              <p class="stat-box__value"
+                 style="color: var(--success); margin-bottom: 0.5rem;">
+                {% if savings.total_saved > 0 %}
+                  INR {{ "%.2f" | format(savings.total_saved) }}
+                {% else %}
+                  —
+                {% endif %}
+              </p>
+              <p class="stat-box__label">Total Saved</p>
+            </div>
+
+            <div class="stagger-child text-center">
+              <p class="stat-box__value"
+                 style="color: var(--primary); margin-bottom: 0.5rem;">
+                {{ savings.total_products }}
+              </p>
+              <p class="stat-box__label">Products Tracked</p>
+            </div>
+
+            <div class="stagger-child text-center">
+              <p class="stat-box__value"
+                 style="margin-bottom: 0.5rem;">
+                {{ savings.deals_found }}
+              </p>
+              <p class="stat-box__label">Price Drops Found</p>
+            </div>
+
+            <div class="stagger-child text-center">
+              <p class="stat-box__value"
+                 style="color: var(--success); margin-bottom: 0.5rem;">
+                {% if savings.best_deal_drop > 0 %}
+                  INR {{ "%.2f" | format(savings.best_deal_drop) }}
+                {% else %}
+                  —
+                {% endif %}
+              </p>
+              <p class="stat-box__label">Best Single Deal</p>
+            </div>
+
+          </div>
+
+          <!-- Best deal product name -->
+          {% if savings.best_deal %}
+          <div style="margin-top: 1.25rem; padding: 1rem;
+                      background-color: #dafbe1; border-radius: 0.75rem;
+                      border-left: 4px solid var(--success);">
+            <p style="margin: 0; font-weight: 600;
+                      color: var(--success); font-size: 0.875rem;">
+              🎯 Best Deal Found
+            </p>
+            <p style="margin: 0.25rem 0 0 0; color: #166534; font-size: 0.8125rem;">
+              {{ savings.best_deal.name | truncate(60) }}
+              dropped by INR {{ "%.2f" | format(savings.best_deal_drop) }}
+            </p>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+
+      <!-- ── Site Performance ───────────────────────────────────────────── -->
+      <div class="card">
+        <div class="card__header">
+          <h3 class="card__title">Site Performance</h3>
+          <span style="font-size: 0.8125rem; color: var(--text-tertiary);">
+            {{ site_performance | length }}
+            site{{ 's' if site_performance | length != 1 else '' }} tracked
+          </span>
+        </div>
+        <div class="card__content"
+             style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+          {% if site_performance %}
+            {% set max_drop = site_performance[0].avg_drop or 1 %}
+
+            {% for site in site_performance %}
+            <div>
+              <div style="display: flex; justify-content: space-between;
+                          align-items: center; margin-bottom: 0.5rem;">
+
+                <!-- Site name + product count -->
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 1rem;">
+                    {% if site.site == 'amazon' %}🛒
+                    {% elif site.site == 'flipkart' %}🏷️
+                    {% elif site.site == 'ebay' %}🏪
+                    {% elif site.site == 'books' %}📚
+                    {% else %}📦
+                    {% endif %}
+                  </span>
+                  <p style="margin: 0; font-weight: 600;
+                             font-size: 0.875rem; color: var(--text);">
+                    {{ site.site | capitalize }}
+                  </p>
+                  <span style="font-size: 0.75rem; color: var(--text-tertiary);">
+                    ({{ site.count }}
+                    product{{ 's' if site.count != 1 else '' }})
+                  </span>
+                </div>
+
+                <!-- Avg drop -->
+                <p style="margin: 0; font-size: 0.875rem; font-weight: 600;
+                           color: {% if site.avg_drop > 0 %}var(--success)
+                                  {% else %}var(--text-tertiary){% endif %};">
+                  {% if site.avg_drop > 0 %}
+                    ↓ INR {{ "%.2f" | format(site.avg_drop) }} avg drop
+                  {% else %}
+                    No drops yet
+                  {% endif %}
+                </p>
+
+              </div>
+
+              <!-- Progress bar -->
+              <div style="height: 0.5rem; background-color: var(--bg-subtle);
+                          border-radius: 0.25rem; overflow: hidden;">
+                <div style="height: 100%;
+                            width: {{ ((site.avg_drop / max_drop) * 100) | round | int if max_drop > 0 else 0 }}%;
+                            background-color: {% if site.avg_drop > 0 %}var(--success)
+                                              {% else %}var(--border){% endif %};
+                            border-radius: 0.25rem;
+                            transition: width 0.6s ease;">
+                </div>
+              </div>
+
+            </div>
+            {% endfor %}
+
+          {% else %}
+            <p style="color: var(--text-tertiary); font-size: 0.875rem;">
+              No site data yet.
+            </p>
+          {% endif %}
+
+        </div>
+      </div>
+
+    {% else %}
+
+      <!-- No products -->
+      <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">💡</div>
+        <h3 style="color: var(--text); margin-bottom: 0.5rem;
+                   font-size: 1rem; font-weight: 600;">
+          No insights yet
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.875rem;">
+          Start tracking products from the Home tab to see insights here.
+        </p>
+      </div>
+
+    {% endif %}
+
+  </section>
+</div>

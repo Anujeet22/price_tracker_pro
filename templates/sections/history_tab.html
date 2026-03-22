@@ -1,0 +1,198 @@
+<!-- PRICE HISTORY TAB -->
+<div id="section-history" class="tab-section" style="display: none;">
+
+  <section class="section reveal">
+
+    <div class="section-header">
+      <h2 class="section-header__title">Price History</h2>
+      <span class="badge badge--info" id="history-record-count" style="display:none;">
+        <span class="badge__dot"></span>
+        <span id="history-record-text">0 records</span>
+      </span>
+    </div>
+
+    {% if products %}
+
+      <!-- ── Product Selector ───────────────────────────────────────────── -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card__content" style="padding:1.25rem 1.5rem;">
+          <div style="display:flex;align-items:center;gap:1rem;">
+
+            <div style="width:2.5rem;height:2.5rem;
+                        background:linear-gradient(135deg,#0969da,#1f6feb);
+                        border-radius:0.75rem;display:flex;align-items:center;
+                        justify-content:center;flex-shrink:0;
+                        box-shadow:0 4px 12px rgba(9,105,218,0.25);">
+              <svg fill="none" stroke="white" viewBox="0 0 24 24"
+                   style="width:1.125rem;height:1.125rem;stroke-width:2.5;">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0
+                         002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2
+                         2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2
+                         2 0 01-2-2z"/>
+              </svg>
+            </div>
+
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:0.75rem;font-weight:600;color:var(--text-tertiary);
+                        text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.375rem;">
+                Select Product
+              </p>
+              <div style="position:relative;">
+                <select id="history-product-select"
+                        style="width:100%;padding:0.625rem 2.5rem 0.625rem 0.875rem;
+                               border:1.5px solid var(--border-subtle);
+                               border-radius:0.75rem;font-family:inherit;
+                               font-size:0.875rem;font-weight:500;
+                               color:var(--text);background-color:var(--bg-subtle);
+                               cursor:pointer;outline:none;
+                               appearance:none;-webkit-appearance:none;
+                               transition:all var(--transition);">
+                  {% for product in products %}
+                    <option value="{{ product.id }}">
+                      {{ product.name | truncate(55) }}
+                    </option>
+                  {% endfor %}
+                </select>
+                <div style="position:absolute;right:0.75rem;top:50%;
+                            transform:translateY(-50%);pointer-events:none;
+                            color:var(--text-tertiary);">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                       style="width:1rem;height:1rem;stroke-width:2.5;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Loading State ──────────────────────────────────────────────── -->
+      <div id="history-loading" style="display:none;text-align:center;padding:3rem;">
+        <div style="width:2rem;height:2rem;border:3px solid var(--border-subtle);
+                    border-top-color:var(--primary);border-radius:50%;
+                    animation:spin 0.8s linear infinite;
+                    margin:0 auto 1rem;"></div>
+        <p style="font-size:0.875rem;color:var(--text-tertiary);">
+          Loading price history...
+        </p>
+      </div>
+
+      <!-- ── Chart Card ─────────────────────────────────────────────────── -->
+      <div id="history-chart-card" class="card" style="display:none;">
+
+        <!-- Header -->
+        <div class="card__header">
+          <div style="min-width:0;flex:1;">
+            <p style="font-size:0.75rem;font-weight:600;color:var(--text-tertiary);
+                      text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.25rem;">
+              Current Price
+            </p>
+            <h2 class="card__title" id="history-product-name"
+                style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></h2>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0;">
+            <span id="history-low-badge" class="badge badge--success" style="display:none;">
+              <span class="badge__dot"></span>All-time Low
+            </span>
+            <span id="history-current-price"
+                  style="font-size:1.25rem;font-weight:700;color:var(--text);"></span>
+          </div>
+        </div>
+
+        <!-- Stats Row — filled by pandas data -->
+        <div id="history-stats-row"
+             style="display:none;padding:1.25rem 1.5rem 0;
+                    grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:0.75rem;">
+          <div class="stat-box" style="padding:0.75rem;text-align:center;">
+            <p class="stat-box__value" id="stat-avg"
+               style="font-size:1rem;">—</p>
+            <p class="stat-box__label">Average</p>
+          </div>
+          <div class="stat-box" style="padding:0.75rem;text-align:center;">
+            <p class="stat-box__value" id="stat-lowest"
+               style="font-size:1rem;color:var(--success);">—</p>
+            <p class="stat-box__label">Lowest</p>
+          </div>
+          <div class="stat-box" style="padding:0.75rem;text-align:center;">
+            <p class="stat-box__value" id="stat-highest"
+               style="font-size:1rem;color:var(--danger);">—</p>
+            <p class="stat-box__label">Highest</p>
+          </div>
+          <div class="stat-box" style="padding:0.75rem;text-align:center;">
+            <p class="stat-box__value" id="stat-trend"
+               style="font-size:1rem;">—</p>
+            <p class="stat-box__label">Trend</p>
+          </div>
+          <div class="stat-box" style="padding:0.75rem;text-align:center;">
+            <p class="stat-box__value" id="stat-volatility"
+               style="font-size:1rem;">—</p>
+            <p class="stat-box__label">Volatility</p>
+          </div>
+        </div>
+
+        <!-- Chart.js canvas -->
+        <div id="history-chart-container"
+             style="padding:1.5rem;position:relative;height:16rem;">
+          <canvas id="history-chart-canvas"></canvas>
+        </div>
+
+        <!-- Not enough data -->
+        <div id="history-no-chart" class="card__content"
+             style="display:none;text-align:center;padding:2rem;color:var(--text-tertiary);">
+          <p style="font-size:1.5rem;margin-bottom:0.5rem;"></p>
+          <p style="font-size:0.875rem;line-height:1.6;">
+            Only 1 price record so far.<br>
+            Check back after the next price refresh.
+          </p>
+        </div>
+
+      </div>
+      <!-- end history-chart-card -->
+
+      <!-- ── Price Log Table ────────────────────────────────────────────── -->
+      <div id="history-table-card" class="card"
+           style="display:none;margin-top:1.5rem;">
+        <div class="card__header">
+          <h2 class="card__title">Price Log</h2>
+          <span id="history-table-count"
+                style="font-size:0.8125rem;color:var(--text-tertiary);"></span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.875rem;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border-subtle);
+                         background-color:var(--bg-subtle);">
+                <th style="text-align:left;padding:0.75rem 1.5rem;
+                           font-weight:600;color:var(--text-secondary);">#</th>
+                <th style="text-align:left;padding:0.75rem 1.5rem;
+                           font-weight:600;color:var(--text-secondary);">Date & Time</th>
+                <th style="text-align:right;padding:0.75rem 1.5rem;
+                           font-weight:600;color:var(--text-secondary);">Price</th>
+                <th style="text-align:right;padding:0.75rem 1.5rem;
+                           font-weight:600;color:var(--text-secondary);">Change</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    {% else %}
+
+      <!-- No products -->
+      <div class="card" style="text-align:center;padding:3rem 1.5rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">📈</div>
+        <h3 style="color:var(--text);margin-bottom:0.5rem;
+                   font-size:1rem;font-weight:600;">No price history yet</h3>
+        <p style="color:var(--text-secondary);font-size:0.875rem;">
+          Start tracking a product from the Home tab to see price history here.
+        </p>
+      </div>
+
+    {% endif %}
+
+  </section>
+</div>

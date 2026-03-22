@@ -1,0 +1,41 @@
+<div class="grid-4">
+  <div class="stat-card stat-card-blue">
+    <div class="stat-icon">
+      <i class="fas fa-shopping-cart"></i>
+    </div>
+    <div class="stat-details">
+      <p class="stat-label">Products Tracked</p>
+      <h3 class="stat-value">{{ stats.total_products }}</h3>
+    </div>
+  </div>
+
+  <div class="stat-card stat-card-green">
+    <div class="stat-icon">
+      <i class="fas fa-dollar-sign"></i>
+    </div>
+    <div class="stat-details">
+      <p class="stat-label">Potential Savings</p>
+      <h3 class="stat-value">₹{{ stats.total_savings }}</h3>
+    </div>
+  </div>
+
+  <div class="stat-card stat-card-orange">
+    <div class="stat-icon">
+      <i class="fas fa-arrow-down"></i>
+    </div>
+    <div class="stat-details">
+      <p class="stat-label">Price Drops Today</p>
+      <h3 class="stat-value">{{ stats.price_drops_today }}</h3>
+    </div>
+  </div>
+
+  <div class="stat-card stat-card-purple">
+    <div class="stat-icon">
+      <i class="fas fa-clock"></i>
+    </div>
+    <div class="stat-details">
+      <p class="stat-label">Last Check</p>
+      <h3 class="stat-value">{{ stats.last_check }}</h3>
+    </div>
+  </div>
+</div>

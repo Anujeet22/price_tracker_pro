@@ -1,0 +1,131 @@
+<!-- PRODUCTS TAB -->
+<div id="section-products" class="tab-section" style="display: none;">
+
+  <section class="section reveal">
+    <div class="section-header">
+      <h2 class="section-header__title">Tracked Products</h2>
+
+      <!-- "Add Product" just switches to the Home tab -->
+      <button class="btn btn--primary" onclick="
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelector('.nav-tab[data-tab=home]').classList.add('active');
+        document.querySelectorAll('.tab-section').forEach(s => s.style.display = 'none');
+        document.getElementById('section-home').style.display = 'block';
+        document.getElementById('product-url').focus();
+      ">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+             style="width:1rem;height:1rem;stroke-width:2;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Product
+      </button>
+    </div>
+
+    {% if products %}
+
+      <div class="grid-3">
+        {% for product in products %}
+        <div class="stagger-child">
+          <div class="product-card">
+
+            <!-- Product image or site emoji -->
+            <div class="product-image">
+              {% if product.image_url %}
+                <img src="{{ product.image_url }}"
+                     alt="{{ product.name }}"
+                     style="width:100%;height:100%;object-fit:contain;border-radius:0.75rem;"
+                     onerror="this.parentElement.innerHTML='📦';">
+              {% elif product.site_name == 'amazon' %}🛒
+              {% elif product.site_name == 'flipkart' %}🏷️
+              {% elif product.site_name == 'ebay' %}🏪
+              {% elif product.site_name == 'books' %}📚
+              {% else %}📦
+              {% endif %}
+            </div>
+
+            <div class="product-info">
+
+              <!-- Name -->
+              <p class="product-name">{{ product.name }}</p>
+
+              <!-- Site name as category -->
+              <p class="product-category">{{ product.site_name | capitalize }}</p>
+
+              <!-- Price -->
+              <div class="product-price">
+                {% if product.current_price %}
+                  <span class="product-price__current">
+                    {{ product.currency }} {{ "%.2f" | format(product.current_price) }}
+                  </span>
+
+                  <!-- Show if it's at its lowest or highest -->
+                  {% if product.current_price == product.lowest_price %}
+                    <span class="product-price__change product-price__change--down">
+                      Lowest!
+                    </span>
+                  {% elif product.current_price == product.highest_price %}
+                    <span class="product-price__change product-price__change--up">
+                      Highest
+                    </span>
+                  {% endif %}
+
+                {% else %}
+                  <span style="font-size:0.8125rem;color:var(--text-tertiary);">
+                    Price unavailable
+                  </span>
+                {% endif %}
+              </div>
+
+              <!-- Alert toggle + Remove -->
+              <div style="display:flex;align-items:center;justify-content:space-between;
+                          margin-top:0.75rem;padding-top:0.75rem;
+                          border-top:1px solid var(--border-subtle);">
+
+                <!-- Alert toggle — submits a tiny form -->
+                <form method="POST"
+                      action="/product/toggle-alert/{{ product.id }}"
+                      style="margin:0;display:flex;align-items:center;gap:0.5rem;">
+                  <span style="font-size:0.8125rem;color:var(--text-tertiary);">Alerts</span>
+                  <button type="submit"
+                          class="toggle {{ 'active' if product.alerts_on else '' }}">
+                  </button>
+                </form>
+
+                <!-- Remove -->
+                <form method="POST"
+                      action="/product/delete/{{ product.id }}"
+                      style="margin:0;"
+                      onsubmit="return confirm('Remove {{ product.name | truncate(30) }}?')">
+                  <button type="submit"
+                          class="btn btn--ghost"
+                          style="color:var(--danger);padding:0.25rem 0.5rem;font-size:0.8125rem;">
+                    Remove
+                  </button>
+                </form>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+
+      <!-- Empty state -->
+      <div class="card" style="text-align:center;padding:3rem 1.5rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">📦</div>
+        <h3 style="color:var(--text);margin-bottom:0.5rem;font-size:1rem;font-weight:600;">
+          No products tracked yet
+        </h3>
+        <p style="color:var(--text-secondary);font-size:0.875rem;margin-bottom:1.5rem;">
+          Go to the Home tab and paste a product URL to start tracking prices.
+        </p>
+      </div>
+
+    {% endif %}
+
+  </section>
+
+</div>

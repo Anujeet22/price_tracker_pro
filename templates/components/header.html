@@ -1,0 +1,19 @@
+<header class="header">
+  <div class="header__content">
+    <div class="header__left">
+      <div class="header__logo">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        </svg>
+      </div>
+      <div class="header__text">
+        <h1 class="header__title">PriceTracker Pro</h1>
+        <p class="header__subtitle">Welcome, {{ current_user.username }}!</p>
+      </div>
+    </div>
+    <div class="header__actions">
+      <a href="{{ url_for('logout') }}" class="btn btn--secondary">Logout</a>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,106 @@
+<!-- SETTINGS TAB -->
+<div id="section-settings" class="tab-section" style="display: none;">
+
+  <section class="section reveal">
+    <div class="section-header">
+      <h2 class="section-header__title">Settings &amp; Preferences</h2>
+    </div>
+
+    <!-- General Settings -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="card__header">
+        <h3 class="card__title">General</h3>
+      </div>
+      <div class="card__content" style="display: flex; flex-direction: column; gap: 2rem;">
+        <div>
+          <label for="currency" style="display: block; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; font-size: 0.875rem;">Currency</label>
+          <select id="currency" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-subtle); border-radius: 0.75rem; font-size: 0.875rem; color: var(--text); background-color: var(--bg);">
+            <option>USD ($)</option>
+            <option>EUR (€)</option>
+            <option>GBP (£)</option>
+            <option>JPY (¥)</option>
+            <option>CAD (C$)</option>
+          </select>
+        </div>
+        <div>
+          <label for="region" style="display: block; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; font-size: 0.875rem;">Region</label>
+          <select id="region" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-subtle); border-radius: 0.75rem; font-size: 0.875rem; color: var(--text); background-color: var(--bg);">
+            <option>United States</option>
+            <option>Canada</option>
+            <option>United Kingdom</option>
+            <option>European Union</option>
+            <option>Japan</option>
+          </select>
+        </div>
+        <div>
+          <label for="language" style="display: block; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; font-size: 0.875rem;">Language</label>
+          <select id="language" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-subtle); border-radius: 0.75rem; font-size: 0.875rem; color: var(--text); background-color: var(--bg);">
+            <option>English</option>
+            <option>Spanish</option>
+            <option>French</option>
+            <option>German</option>
+            <option>Japanese</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="card__header">
+        <h3 class="card__title">Account</h3>
+      </div>
+      <div class="card__content" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div style="padding: 1rem; background-color: var(--bg-subtle); border-radius: 0.75rem;">
+          <p style="margin: 0 0 0.5rem 0; font-size: 0.8125rem; color: var(--text-tertiary);">Email</p>
+          <p style="margin: 0; font-weight: 600; color: var(--text);">admin@example.com</p>
+        </div>
+        <div style="padding: 1rem; background-color: var(--bg-subtle); border-radius: 0.75rem;">
+          <p style="margin: 0 0 0.5rem 0; font-size: 0.8125rem; color: var(--text-tertiary);">Account Type</p>
+          <p style="margin: 0; font-weight: 600; color: var(--text);">Premium</p>
+        </div>
+        <div>
+          <button class="btn btn--secondary" style="width: 100%;">Change Password</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Privacy & Data -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="card__header">
+        <h3 class="card__title">Privacy &amp; Data</h3>
+      </div>
+      <div class="card__content" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <p style="margin: 0 0 0.25rem 0; font-weight: 600; color: var(--text);">Analytics</p>
+            <p style="margin: 0; font-size: 0.875rem; color: var(--text-tertiary);">Help us improve by sharing usage data</p>
+          </div>
+          <button class="toggle active" onclick="this.classList.toggle('active')"></button>
+        </div>
+        <div style="border-top: 1px solid var(--border-subtle); padding-top: 1.5rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <p style="margin: 0 0 0.25rem 0; font-weight: 600; color: var(--text);">Marketing Emails</p>
+              <p style="margin: 0; font-size: 0.875rem; color: var(--text-tertiary);">Receive tips and exclusive offers</p>
+            </div>
+            <button class="toggle" onclick="this.classList.toggle('active')"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="card" style="border-color: var(--danger); border-width: 2px;">
+      <div class="card__header" style="border-bottom-color: var(--danger); opacity: 0.7;">
+        <h3 class="card__title" style="color: var(--danger);">Danger Zone</h3>
+      </div>
+      <div class="card__content" style="display: flex; flex-direction: column; gap: 1rem;">
+        <p style="margin: 0; font-size: 0.875rem; color: var(--text-secondary);">These actions cannot be undone. Please proceed with caution.</p>
+        <button class="btn" style="background-color: transparent; border-color: var(--danger); color: var(--danger); justify-content: center;">Delete Account</button>
+      </div>
+    </div>
+
+  </section>
+
+</div>
