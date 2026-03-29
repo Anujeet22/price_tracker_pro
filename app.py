@@ -4,6 +4,7 @@ from urllib.parse import quote_plus
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_mail import Mail
 from models import db, User, Product, PriceHistory
 from collections import defaultdict
 
@@ -14,6 +15,12 @@ app = Flask(__name__)
 # ── settings ──────────────────────────────────────────────────────────────────
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'change-this-later')
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = ('PriceTracker Pro', os.getenv('MAIL_USERNAME'))
 
 _pw = quote_plus(os.getenv('DB_PASSWORD', ''))
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://postgres:{_pw}@localhost/pricetracker'
@@ -23,6 +30,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+mail=Mail(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in first.'

@@ -11,23 +11,23 @@ import requests
 from bs4 import BeautifulSoup
 
 
-# ── Logging setup ────────────────────────────────────────────────────────────
+# ── Logging ───────────────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("scraper")
 
 
-# ── Result container ─────────────────────────────────────────────────────────
+# ── Result container ──────────────────────────────────────────────────────────
 @dataclass
 class ScrapeResult:
-    url: str
-    site: str
-    name: Optional[str] = None
-    price: Optional[float] = None
-    currency: str = "INR"          
-    available: bool = False
-    image_url: Optional[str] = None
-    method: str = "unknown"
-    error: Optional[str] = None
+    url:       str
+    site:      str
+    name:      Optional[str]   = None
+    price:     Optional[float] = None
+    currency:  str             = "INR"
+    available: bool            = False
+    image_url: Optional[str]   = None
+    method:    str             = "unknown"
+    error:     Optional[str]   = None
 
     @property
     def success(self) -> bool:
@@ -55,12 +55,11 @@ USER_AGENTS = [
 
 def get_headers() -> dict:
     return {
-        "User-Agent": random.choice(USER_AGENTS),
+        "User-Agent":      random.choice(USER_AGENTS),
         "Accept-Language": "en-US,en;q=0.9",
     }
 
 def clean_price(raw: str) -> Optional[float]:
-    """Remove all non-numeric characters except dot, then convert to float."""
     try:
         cleaned = re.sub(r"[^\d.]", "", str(raw))
         return float(cleaned) if cleaned else None
@@ -68,15 +67,14 @@ def clean_price(raw: str) -> Optional[float]:
         return None
 
 def polite_delay():
-    """Wait a short random time between requests to be respectful."""
     time.sleep(random.uniform(1.5, 3))
 
 
 # ── Site detection ────────────────────────────────────────────────────────────
 SITE_MAP = {
-    "amazon":        "amazon",
-    "flipkart":      "flipkart",
-    "ebay":          "ebay",
+    "amazon":         "amazon",
+    "flipkart":       "flipkart",
+    "ebay":           "ebay",
     "books.toscrape": "books",
 }
 
@@ -91,33 +89,38 @@ def detect_site(url: str) -> str:
 # ── Scrapers ──────────────────────────────────────────────────────────────────
 
 def scrape_amazon(url: str) -> ScrapeResult:
-    """Scrape product name and price from Amazon using Playwright."""
     result = ScrapeResult(url=url, site="amazon")
     try:
         from playwright.sync_api import sync_playwright
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
+            page    = browser.new_page()
             page.goto(url, timeout=60000)
             page.wait_for_timeout(3000)
 
-            # Get product name — target span only to avoid hidden input conflict
+            # Name
             name = page.locator("span#productTitle").first.inner_text()
 
-            # Get price — whole part + fraction part (e.g. 499 + 00 = 499.00)
-            price_whole = page.locator(".a-price-whole").first.inner_text()
+            # Price
+            price_whole    = page.locator(".a-price-whole").first.inner_text()
             price_fraction = "00"
-            fraction_el = page.locator(".a-price-fraction").first
+            fraction_el    = page.locator(".a-price-fraction").first
             if fraction_el.count() > 0:
                 price_fraction = fraction_el.inner_text().strip()
+            price_str = price_whole.strip().rstrip(".") + "." + price_fraction
 
-            price_str = price_whole.strip().rstrip('.') + "." + price_fraction
+            # Image
+            image_url = None
+            img = page.locator("#landingImage").first
+            if img.count() > 0:
+                image_url = img.get_attribute("src")
 
             result.name      = name.strip()
             result.price     = clean_price(price_str)
             result.currency  = "INR"
             result.available = True
+            result.image_url = image_url
             result.method    = "playwright"
 
             browser.close()
@@ -129,24 +132,33 @@ def scrape_amazon(url: str) -> ScrapeResult:
 
 
 def scrape_flipkart(url: str) -> ScrapeResult:
-    """Scrape product name and price from Flipkart using Playwright."""
     result = ScrapeResult(url=url, site="flipkart")
     try:
         from playwright.sync_api import sync_playwright
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
+            page    = browser.new_page()
             page.goto(url, timeout=60000)
             page.wait_for_timeout(3000)
 
+            # Name
             name  = page.locator("span.B_NuCI").first.inner_text()
+
+            # Price
             price = page.locator("div._30jeq3").first.inner_text()
+
+            # Image
+            image_url = None
+            img = page.locator("img._396cs4").first
+            if img.count() > 0:
+                image_url = img.get_attribute("src")
 
             result.name      = name.strip()
             result.price     = clean_price(price)
             result.currency  = "INR"
             result.available = True
+            result.image_url = image_url
             result.method    = "playwright"
 
             browser.close()
@@ -158,13 +170,12 @@ def scrape_flipkart(url: str) -> ScrapeResult:
 
 
 def scrape_ebay(url: str) -> ScrapeResult:
-    """Scrape product name and price from eBay using requests + BeautifulSoup."""
     result = ScrapeResult(url=url, site="ebay")
     try:
-        r = requests.get(url, headers=get_headers(), timeout=15)
+        r    = requests.get(url, headers=get_headers(), timeout=15)
         soup = BeautifulSoup(r.text, "html.parser")
 
-        # Try structured JSON data first (more reliable)
+        # Try JSON first
         script = soup.find("script", {"type": "application/ld+json"})
         if script and script.string:
             try:
@@ -180,7 +191,7 @@ def scrape_ebay(url: str) -> ScrapeResult:
             except Exception:
                 pass
 
-        # Fallback to HTML selectors
+        # Fallback to HTML
         name  = soup.select_one("h1 span")
         price = soup.select_one("span.ux-textspans")
 
@@ -190,7 +201,7 @@ def scrape_ebay(url: str) -> ScrapeResult:
             result.currency = "INR"
             result.method   = "html"
         else:
-            result.error = "eBay parsing failed — selectors not found"
+            result.error = "eBay parsing failed"
 
     except Exception as e:
         result.error = str(e)
@@ -199,7 +210,6 @@ def scrape_ebay(url: str) -> ScrapeResult:
 
 
 def scrape_books(url: str) -> ScrapeResult:
-    """Scrape product name and price from books.toscrape.com (good for testing)."""
     result = ScrapeResult(url=url, site="books")
     try:
         r    = requests.get(url, headers=get_headers(), timeout=10)
@@ -214,7 +224,7 @@ def scrape_books(url: str) -> ScrapeResult:
 
         result.name      = name.text.strip()
         result.price     = clean_price(price.text)
-        result.currency  = "INR"   # converted to INR as per project requirement
+        result.currency  = "INR"
         result.available = True
         result.method    = "html"
 
@@ -229,15 +239,14 @@ def scrape_books(url: str) -> ScrapeResult:
 
 
 def scrape_unsupported(url: str) -> ScrapeResult:
-    """Returned when the site is not supported."""
     return ScrapeResult(
-        url=url,
-        site="unsupported",
-        error="This site is not supported. Supported: Amazon, Flipkart, eBay, books.toscrape"
+        url   = url,
+        site  = "unsupported",
+        error = "Site not supported. Supported: Amazon, Flipkart, eBay, books.toscrape"
     )
 
 
-# ── Scraper registry ──────────────────────────────────────────────────────────
+# ── Registry ──────────────────────────────────────────────────────────────────
 SCRAPERS = {
     "amazon":   scrape_amazon,
     "flipkart": scrape_flipkart,
@@ -249,21 +258,15 @@ SCRAPERS = {
 # ── Public API ────────────────────────────────────────────────────────────────
 
 def scrape_product(url: str) -> dict:
-    """
-    Main entry point. Pass any product URL and get back a result dict.
-    Always returns a dict with a 'success' key — never raises an exception.
-    """
     url = url.strip()
 
     if not url.startswith("http"):
         url = "https://" + url
 
-    # Remove query parameters to get clean URL
-    url = url.split("?")[0]
-
+    url  = url.split("?")[0]
     site = detect_site(url)
-    log.info(f"Scraping: {url}  (site={site})")
 
+    log.info(f"Scraping: {url}  (site={site})")
     polite_delay()
 
     scraper = SCRAPERS.get(site, scrape_unsupported)
@@ -275,7 +278,6 @@ def scrape_product(url: str) -> dict:
 
 
 def scrape_multiple(urls: List[str], delay: float = 3.0) -> List[dict]:
-    """Scrape a list of URLs one by one with a delay between each."""
     results = []
     for i, url in enumerate(urls, 1):
         log.info(f"[{i}/{len(urls)}] {url}")
@@ -293,11 +295,12 @@ if __name__ == "__main__":
 
     for url in test_urls:
         r = scrape_product(url)
-        print(f"\nURL     : {r['url'][:70]}")
-        print(f"Success : {r['success']}")
+        print(f"\nURL      : {r['url'][:70]}")
+        print(f"Success  : {r['success']}")
         if r["success"]:
-            print(f"Name    : {r['name']}")
-            print(f"Price   : {r['currency']} {r['price']}")
-            print(f"Method  : {r['method']}")
+            print(f"Name     : {r['name']}")
+            print(f"Price    : {r['currency']} {r['price']}")
+            print(f"Image    : {r['image_url']}")
+            print(f"Method   : {r['method']}")
         else:
-            print(f"Error   : {r['error']}")
+            print(f"Error    : {r['error']}")

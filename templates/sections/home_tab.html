@@ -67,14 +67,14 @@
       </div>
       <div class="card__content">
 
-        {% if last_product %}
-        <div style="display: grid; grid-template-columns: minmax(8rem, 0.8fr) 1fr; gap: 2rem; max-width: 100%;">
+     {% if last_product %}
+      <div style="display: grid; grid-template-columns: 280px 1fr; gap: 2rem; max-width: 100%;">
 
-          <div class="product-image" style="height: 8rem; font-size: 2.5rem;">
-            {% if last_product.image_url %}
-              <img src="{{ last_product.image_url }}" alt="{{ last_product.name }}"
-                   style="width:100%; height:100%; object-fit:contain; border-radius:0.75rem;"
-                   onerror="this.parentElement.innerHTML='📦';">
+        <div style="width: 280px; height: 280px; background-color: var(--bg-subtle); border-radius: 0.875rem; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border-subtle);">
+           {% if last_product.image_url %}
+            <img src="{{ last_product.image_url }}" alt="{{ last_product.name }}"
+               style="width: 100%; height: 100%; object-fit: contain; padding: 1rem;"
+               onerror="this.parentElement.innerHTML='<span style=font-size:3rem>📦</span>';">
             {% else %}
               {% if last_product.site_name == 'ebay' %}🏷️
               {% elif last_product.site_name == 'walmart' %}🛒
