@@ -58,7 +58,6 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
-            flash("Login Successful ! Redirecting...")
             login_user(user)
             return redirect(url_for('dashboard'))
 
@@ -337,14 +336,59 @@ def delete_product(product_id):
     return redirect(url_for('dashboard'))
 
 # Toggle alert
-@app.route('/product/toggle-alert/<int:product_id>',methods=['POST'])
+@app.route('/product/toggle-alert/<int:product_id>', methods=['POST'])
 @login_required
 def toggle_alert(product_id):
-    product=Product.query.filter_by(
-        id=product_id,user_id=current_user.id
+    product = Product.query.filter_by(
+        id=product_id,
+        user_id=current_user.id
     ).first_or_404()
-    product.alerts_on=not product.alerts_on
+
+    product.alerts_on = not product.alerts_on
+
+    flash(
+        f"Alerts {'enabled' if product.alerts_on else 'disabled'}",
+        "success"
+    )
+
     db.session.commit()
+    return redirect(url_for('dashboard'))
+
+
+@app.route('/product/check/<int:product_id>', methods=['POST'])
+@login_required
+def check_price(product_id):
+    from scraper import scrape_product
+
+    product = Product.query.filter_by(
+        id=product_id,
+        user_id=current_user.id
+    ).first_or_404()
+
+    result = scrape_product(product.url)
+
+    if not result['success']:
+        flash("Failed to update price", "error")
+        return redirect(url_for('dashboard'))
+
+    new_price = result['price']
+
+    # Save history
+    history = PriceHistory(product_id=product.id, price=new_price)
+    db.session.add(history)
+
+    # Update product
+    product.current_price = new_price
+
+    if new_price < product.lowest_price:
+        product.lowest_price = new_price
+
+    if new_price > product.highest_price:
+        product.highest_price = new_price
+
+    db.session.commit()
+
+    flash("Price updated!", "success")
     return redirect(url_for('dashboard'))
 
 # ── history API ───────────────────────────────────────────────────────────────
