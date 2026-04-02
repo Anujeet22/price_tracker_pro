@@ -166,18 +166,20 @@ pip install -r requirements.txt
 playwright install chromium
 
 python app.py
+```
 
 ---
 
+Visit: http://localhost:5000
 ## 🔍 How the Scraper Works
 
-Each supported site has its own dedicated scraper in `scraper.py`. The site is detected from the URL domain. Amazon uses Playwright (headless Chromium) because it requires JavaScript rendering. Flipkart, TataCliq, and Myntra use Camoufox combined with BeautifulSoup. A random user-agent and polite delay are applied before every request.
+Each supported site has its own dedicated scraper in scraper.py. The site is detected from the URL domain. Amazon uses Playwright (headless Chromium) because it requires JavaScript rendering. Flipkart, TataCliq, and Myntra use Camoufox combined with BeautifulSoup. A random user-agent and polite delay are applied before every request.
 
 ---
 
 ## 📊 Data & Analytics
 
-Once a product has at least 2 price records, the `/api/history/<id>` endpoint processes the data with Pandas and NumPy:
+Once a product has at least 2 price records, the /api/history/<id> endpoint processes the data with Pandas and NumPy:
 
 - Moving average — 3-point rolling mean  
 - Percentage change — relative to the first recorded price  
@@ -188,10 +190,10 @@ Once a product has at least 2 price records, the `/api/history/<id>` endpoint pr
 
 ## 🔑 Environment Variables
 
-- `SECRET_KEY` — Flask session secret  
-- `DB_PASSWORD` — PostgreSQL password  
-- `MAIL_USERNAME` — Gmail address  
-- `MAIL_PASSWORD` — Gmail App Password  
+- SECRET_KEY — Flask session secret  
+- DB_PASSWORD — PostgreSQL password  
+- MAIL_USERNAME — Gmail address  
+- MAIL_PASSWORD — Gmail App Password  
 
 ---
 
@@ -233,4 +235,4 @@ MIT
 
 ## ⭐ Support
 
-If you found this project useful, consider giving it a ⭐ on GitHub!
+If you found this project useful, consider giving it a ⭐ on GitHub! 
